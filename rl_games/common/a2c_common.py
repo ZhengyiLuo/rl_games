@@ -21,6 +21,7 @@ from tensorboardX import SummaryWriter
 import torch 
 from torch import nn
 import torch.distributed as dist
+from datetime import timedelta
  
 from time import sleep
 
@@ -102,7 +103,7 @@ class A2CBase(BaseAlgorithm):
             # total number of GPUs across all nodes
             self.world_size = int(os.getenv("WORLD_SIZE", "1"))
 
-            dist.init_process_group("nccl", rank=self.global_rank, world_size=self.world_size)
+            dist.init_process_group("nccl", rank=self.global_rank, world_size=self.world_size, timeout=timedelta(minutes=self.config.get("multi_gpu_timeout", 10)),)
 
             self.device_name = 'cuda:' + str(self.local_rank)
             config['device'] = self.device_name
